@@ -1,15 +1,8 @@
 package org.cyclops.integrateddynamics.inventory.container;
 
-import com.google.common.collect.Lists;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.StringUtils;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.cyclops.cyclopscore.helper.L10NHelpers;
 import org.cyclops.cyclopscore.helper.MinecraftHelpers;
@@ -30,8 +23,17 @@ import org.cyclops.integrateddynamics.core.logicprogrammer.LogicProgrammerElemen
 import org.cyclops.integrateddynamics.core.persist.world.LabelsWorldStorage;
 import org.cyclops.integrateddynamics.item.ItemVariable;
 
-import java.util.List;
-import java.util.regex.Pattern;
+import com.google.common.collect.Lists;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.StringUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Base container for the logic programmer.
@@ -246,18 +248,20 @@ public abstract class ContainerLogicProgrammerBase extends ScrollingInventoryCon
         ItemStack result = getActiveElement().writeElement(player, itemStack.copy());
         return result;
     }
-
+    
     @Override
     public void onDirty() {
         ILogicProgrammerElement activeElement = getActiveElement();
         if(activeElement != null) {
             for (int i = 0; i < temporaryInputSlots.getSizeInventory(); i++) {
                 ItemStack itemStack = temporaryInputSlots.getStackInSlot(i);
+                //System.out.format("onDirty: onInputSlotUpdated(%d, %s)\n", i, itemStack.toString());
                 temporarySlotsElement.onInputSlotUpdated(i, itemStack);
             }
         }
 
         ItemStack itemStack = writeSlot.getStackInSlot(0);
+        //System.out.format("onDirty: writeSlot(%s)\n", itemStack.toString());
         if(canWriteActiveElement() && !itemStack.isEmpty()) {
             ItemStack outputStack = writeElementInfo();
             writeSlot.removeDirtyMarkListener(this);

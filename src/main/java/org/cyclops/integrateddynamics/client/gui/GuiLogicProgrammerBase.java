@@ -1,13 +1,10 @@
 package org.cyclops.integrateddynamics.client.gui;
 
-import com.google.common.collect.Lists;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.util.List;
+
 import org.apache.commons.lang3.tuple.Triple;
 import org.cyclops.cyclopscore.client.gui.component.button.GuiButtonText;
 import org.cyclops.cyclopscore.client.gui.component.input.GuiTextFieldExtended;
@@ -33,9 +30,15 @@ import org.cyclops.integrateddynamics.network.packet.LogicProgrammerLabelPacket;
 import org.cyclops.integrateddynamics.proxy.ClientProxy;
 import org.lwjgl.input.Keyboard;
 
-import java.awt.*;
-import java.io.IOException;
-import java.util.List;
+import com.google.common.collect.Lists;
+
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Base gui for the logic programmer.
