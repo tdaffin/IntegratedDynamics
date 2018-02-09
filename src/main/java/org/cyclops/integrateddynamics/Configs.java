@@ -94,6 +94,7 @@ public class Configs {
         configHandler.add(new ItemVariableTransformerConfig());
         configHandler.add(new ItemMenrilBerriesConfig());
         configHandler.add(new ItemPortableLogicProgrammerConfig());
+        configHandler.add(new ItemNetworkViewerConfig());
         configHandler.add(new ItemOnTheDynamicsOfIntegrationConfig());
         configHandler.add(new ItemCrystalizedChorusChunkConfig());
         configHandler.add(new ItemLogicDirectorConfig());
