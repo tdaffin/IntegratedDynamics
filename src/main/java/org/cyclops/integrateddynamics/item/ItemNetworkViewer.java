@@ -93,7 +93,9 @@ public class ItemNetworkViewer extends ItemGui {
         		// mc.displayGuiScreen(new GuiExample());
         		;
         		//player.inventory.getCurrentItem();
-        	    Minecraft.getMinecraft().displayGuiScreen(new GuiNetworkViewer(player, player.inventory.currentItem));
+        		Minecraft mc = Minecraft.getMinecraft();
+        		if ( mc != null )
+        			mc.addScheduledTask(()->mc.displayGuiScreen(new GuiNetworkViewer(player, player.inventory.currentItem)));
 
         	    /*public GuiNetworkViewer(EntityPlayer player, int itemIndex) {
         	        this(player.inventory, new ContainerNetworkViewer(player, itemIndex));
