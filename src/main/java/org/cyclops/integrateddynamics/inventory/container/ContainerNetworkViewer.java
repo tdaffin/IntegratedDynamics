@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.cyclops.cyclopscore.helper.InventoryHelpers;
 import org.cyclops.cyclopscore.helper.L10NHelpers;
-import org.cyclops.cyclopscore.inventory.IGuiContainerProvider;
 import org.cyclops.cyclopscore.inventory.SimpleInventory;
 import org.cyclops.cyclopscore.inventory.container.ScrollingInventoryContainer;
 import org.cyclops.cyclopscore.inventory.slot.SlotExtended;
@@ -77,12 +76,7 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
     private String lastLabel = "";
 
     public ContainerNetworkViewer(EntityPlayer player, int itemIndex) {
-        this(player.inventory, ItemNetworkViewer.getInstance(), itemIndex, player.isSneaking());
-    }
-
-    public ContainerNetworkViewer(InventoryPlayer inventory, IGuiContainerProvider guiProvider, int itemIndex,
-    		boolean isSneaking) {
-        super(inventory, guiProvider, getElements(isSneaking), FILTERER);
+        super(player.inventory, ItemNetworkViewer.getInstance(), getElements(player), FILTERER);
         this.itemIndex = itemIndex;
         this.writeSlot = new SimpleInventory(1, "writeSlot", 1);
         this.filterSlots = new SimpleInventory(3, "filterSlots", 1);
@@ -94,7 +88,8 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
         initializeSlotsPost();
     }
 
-    protected static List<NetworkElementGui> getElements(boolean isSneaking) {
+    protected static List<NetworkElementGui> getElements(EntityPlayer player) {
+    	boolean isSneaking = player.isSneaking();
         INetwork network =
         		NetworkWorldStorage.getInstance(IntegratedDynamics._instance).getNetworks().stream().findFirst().orElse(null);
         List<NetworkElementGui> elements = Lists.newLinkedList();
