@@ -3,11 +3,11 @@ package org.cyclops.integrateddynamics.inventory.container;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.cyclops.cyclopscore.helper.InventoryHelpers;
 import org.cyclops.cyclopscore.helper.L10NHelpers;
-import org.cyclops.cyclopscore.helper.MinecraftHelpers;
 import org.cyclops.cyclopscore.inventory.IGuiContainerProvider;
 import org.cyclops.cyclopscore.inventory.SimpleInventory;
 import org.cyclops.cyclopscore.inventory.container.ScrollingInventoryContainer;
@@ -15,16 +15,14 @@ import org.cyclops.cyclopscore.inventory.slot.SlotExtended;
 import org.cyclops.cyclopscore.inventory.slot.SlotSingleItem;
 import org.cyclops.cyclopscore.persist.IDirtyMarkListener;
 import org.cyclops.integrateddynamics.IntegratedDynamics;
-import org.cyclops.integrateddynamics.api.client.gui.subgui.IGuiInputElement;
-import org.cyclops.integrateddynamics.api.client.gui.subgui.ISubGuiBox;
 import org.cyclops.integrateddynamics.api.evaluate.variable.IValueType;
 import org.cyclops.integrateddynamics.api.item.IVariableFacade;
 import org.cyclops.integrateddynamics.api.item.IVariableFacadeHandlerRegistry;
-import org.cyclops.integrateddynamics.api.logicprogrammer.IConfigRenderPattern;
 import org.cyclops.integrateddynamics.api.network.INetwork;
-import org.cyclops.integrateddynamics.api.network.INetworkElement;
 import org.cyclops.integrateddynamics.client.gui.GuiNetworkViewer;
 import org.cyclops.integrateddynamics.client.gui.NetworkElementGui;
+import org.cyclops.integrateddynamics.client.gui.NetworkElementItemGui;
+import org.cyclops.integrateddynamics.client.gui.NetworkElementPartGui;
 import org.cyclops.integrateddynamics.core.persist.world.LabelsWorldStorage;
 import org.cyclops.integrateddynamics.core.persist.world.NetworkWorldStorage;
 import org.cyclops.integrateddynamics.item.ItemNetworkViewer;
@@ -32,12 +30,9 @@ import org.cyclops.integrateddynamics.item.ItemVariable;
 
 import com.google.common.collect.Lists;
 
-import lombok.Getter;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -61,7 +56,7 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
             //return pattern.matcher(item.getMatchString()).matches() || pattern.matcher(item.getSymbol()).matches();
         }
     };
-    
+
     private final int itemIndex;
 
     private final SimpleInventory writeSlot;
@@ -72,7 +67,7 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
     private L10NHelpers.UnlocalizedString lastError;
     private LoadConfigListener loadConfigListener;
 
-    private @Getter IValueType filterIn1 = null;
+    private IValueType filterIn1 = null;
     private IValueType filterIn2 = null;
     private IValueType filterOut = null;
 
@@ -82,11 +77,12 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
     private String lastLabel = "";
 
     public ContainerNetworkViewer(EntityPlayer player, int itemIndex) {
-        this(player.inventory, ItemNetworkViewer.getInstance(), itemIndex);
+        this(player.inventory, ItemNetworkViewer.getInstance(), itemIndex, player.isSneaking());
     }
-    
-    public ContainerNetworkViewer(InventoryPlayer inventory, IGuiContainerProvider guiProvider, int itemIndex) {
-        super(inventory, guiProvider, getElements(), FILTERER);
+
+    public ContainerNetworkViewer(InventoryPlayer inventory, IGuiContainerProvider guiProvider, int itemIndex,
+    		boolean isSneaking) {
+        super(inventory, guiProvider, getElements(isSneaking), FILTERER);
         this.itemIndex = itemIndex;
         this.writeSlot = new SimpleInventory(1, "writeSlot", 1);
         this.filterSlots = new SimpleInventory(3, "filterSlots", 1);
@@ -98,19 +94,31 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
         initializeSlotsPost();
     }
 
-    protected static List<NetworkElementGui> getElements() {
-        INetwork network = 
+    protected static List<NetworkElementGui> getElements(boolean isSneaking) {
+        INetwork network =
         		NetworkWorldStorage.getInstance(IntegratedDynamics._instance).getNetworks().stream().findFirst().orElse(null);
-        List<NetworkElementGui> elements = Lists.newLinkedList();        
+        List<NetworkElementGui> elements = Lists.newLinkedList();
         if (network != null) {
-            //network.getEventBus().post(new VariableContentsUpdatedEvent(network));
-        	elements.addAll(network.getElements().stream()
-        			.map(networkElement->new NetworkElementGui(networkElement))
+        	elements.addAll(
+        			(isSneaking ? getItems(network) : getParts(network))
         			.collect(Collectors.toList()));
         }
         return elements;
     }
-    
+
+    private static Stream<NetworkElementGui> getParts(INetwork network){
+    	return network.getElements().stream()
+    			.map(networkElement->new NetworkElementPartGui(networkElement));
+    }
+
+    private static Stream<NetworkElementGui> getItems(INetwork network){
+    	return network.getElements().stream()
+    		.flatMap(networkElement->NetworkElementItemGui.getItemStacks(networkElement)
+    				.map(is->new NetworkElementItemGui(networkElement, is)));
+			//.map(networkElement->new NetworkElementItemGui(networkElement));
+			//.filter(gui->gui.getItemStack().isPresent())
+    }
+
     public ItemStack getItemStack(EntityPlayer player) {
         return InventoryHelpers.getItemFromIndex(player, itemIndex);
     }
@@ -193,7 +201,7 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
         	activeElement.activate();
         }
     }
-    
+
     /**
      * Set the new active element.
      * @param element The new element.
@@ -281,11 +289,11 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
         ItemStack result = getActiveElement().writeElement(player, itemStack.copy());
         return result;
     }
-    
+
     public ItemStack getWriteItemStack() {
     	return writeSlot.getStackInSlot(0);
     }
-    
+
     @Override
     public void onDirty() {
     	NetworkElementGui activeElement = getActiveElement();
@@ -308,7 +316,7 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
         }
     }
 
-    protected void loadConfigFrom(ItemStack itemStack) {
+    /*protected void loadConfigFrom(ItemStack itemStack) {
         // Only do this client-side, a packet will be sent to do the same server-side.
         if(MinecraftHelpers.isClientSide()) {
             IVariableFacadeHandlerRegistry registry = IntegratedDynamics._instance.getRegistryManager().getRegistry(IVariableFacadeHandlerRegistry.class);
@@ -319,7 +327,7 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
                 }
             }
         }
-    }
+    }*/
 
     public L10NHelpers.UnlocalizedString getLastError() {
         return this.lastError;
