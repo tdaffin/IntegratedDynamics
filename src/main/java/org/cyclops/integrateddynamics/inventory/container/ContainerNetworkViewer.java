@@ -23,7 +23,6 @@ import org.cyclops.integrateddynamics.client.gui.NetworkElementGui;
 import org.cyclops.integrateddynamics.client.gui.NetworkElementItemGui;
 import org.cyclops.integrateddynamics.client.gui.NetworkElementPartGui;
 import org.cyclops.integrateddynamics.core.persist.world.LabelsWorldStorage;
-import org.cyclops.integrateddynamics.core.persist.world.NetworkWorldStorage;
 import org.cyclops.integrateddynamics.item.ItemNetworkViewer;
 import org.cyclops.integrateddynamics.item.ItemVariable;
 
@@ -90,8 +89,15 @@ public class ContainerNetworkViewer extends ScrollingInventoryContainer<NetworkE
 
     protected static List<NetworkElementGui> getElements(EntityPlayer player) {
     	boolean isSneaking = player.isSneaking();
-        INetwork network =
-        		NetworkWorldStorage.getInstance(IntegratedDynamics._instance).getNetworks().stream().findFirst().orElse(null);
+
+    	INetwork network = ItemNetworkViewer.getInstance().getCurrentNetwork();
+
+    	//player.getLookVec();
+    	//player.rayTrace(player.REACH_DISTANCE, partialTicks);
+    	//Minecraft minecraft = Minecraft.getMinecraft();
+    	//if ( minecraft.objectMouseOver != null && minecraft.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK ) {
+    	//	network = NetworkHelpers.getNetwork(player.getEntityWorld(), minecraft.objectMouseOver.getBlockPos(), minecraft.objectMouseOver.sideHit);
+    	//} else
         List<NetworkElementGui> elements = Lists.newLinkedList();
         if (network != null) {
         	elements.addAll(
