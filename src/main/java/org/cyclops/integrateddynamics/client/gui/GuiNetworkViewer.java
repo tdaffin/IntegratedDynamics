@@ -4,7 +4,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.cyclops.cyclopscore.client.gui.component.button.GuiButtonText;
@@ -12,20 +11,14 @@ import org.cyclops.cyclopscore.client.gui.component.input.GuiTextFieldExtended;
 import org.cyclops.cyclopscore.client.gui.container.ScrollingGuiContainer;
 import org.cyclops.cyclopscore.helper.Helpers;
 import org.cyclops.cyclopscore.helper.L10NHelpers;
-import org.cyclops.cyclopscore.helper.L10NHelpers.UnlocalizedString;
 import org.cyclops.cyclopscore.helper.RenderHelpers;
 import org.cyclops.cyclopscore.init.ModBase;
-import org.cyclops.integrateddynamics.IntegratedDynamics;
 import org.cyclops.integrateddynamics.api.client.gui.subgui.IGuiInputElement;
-import org.cyclops.integrateddynamics.api.logicprogrammer.IConfigRenderPattern;
-import org.cyclops.integrateddynamics.api.network.INetwork;
-import org.cyclops.integrateddynamics.api.network.INetworkElement;
 import org.cyclops.integrateddynamics.block.BlockLogicProgrammerConfig;
 import org.cyclops.integrateddynamics.core.client.gui.subgui.SubGuiHolder;
 import org.cyclops.integrateddynamics.core.evaluate.variable.gui.GuiElementValueTypeString;
 import org.cyclops.integrateddynamics.core.helper.L10NValues;
 import org.cyclops.integrateddynamics.core.logicprogrammer.RenderPattern;
-import org.cyclops.integrateddynamics.core.persist.world.NetworkWorldStorage;
 import org.cyclops.integrateddynamics.inventory.container.ContainerNetworkViewer;
 import org.cyclops.integrateddynamics.item.ItemLabeller;
 import org.cyclops.integrateddynamics.proxy.ClientProxy;
@@ -40,7 +33,6 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -61,7 +53,7 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
     public GuiNetworkViewer(EntityPlayer player, int itemIndex) {
         this(player.inventory, new ContainerNetworkViewer(player, itemIndex));
     }
-    
+
     public GuiNetworkViewer(InventoryPlayer inventoryPlayer, ContainerNetworkViewer container) {
         super(container);
         container.setGui(this);
@@ -84,15 +76,18 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
         }
     }
 
-    protected int getScrollX() {
+    @Override
+	protected int getScrollX() {
         return 5;
     }
 
-    protected int getScrollY() {
+    @Override
+	protected int getScrollY() {
         return 18;
     }
 
-    protected int getScrollHeight() {
+    @Override
+	protected int getScrollHeight() {
         return 178;
     }
 
@@ -111,7 +106,8 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
         return 6;
     }
 
-    protected int getSearchWidth() {
+    @Override
+	protected int getSearchWidth() {
         return 70;
     }
 
@@ -133,7 +129,7 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
         // Draw container name
         fontRenderer.drawString(L10NHelpers.localize(L10NValues.GUI_LOGICPROGRAMMER_FILTER),
                 this.guiLeft + offsetX + 5, this.guiTop + offsetY + 208, Helpers.RGBToInt(80, 80, 80));
-        
+
         // Draw operators
         ContainerNetworkViewer container = (ContainerNetworkViewer) getScrollingInventoryContainer();
         ItemStack writeItemStack = null;//container.getWriteItemStack();
@@ -172,7 +168,7 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
                         53, Helpers.RGBToInt(40, 40, 40));
             }
         }
-        
+
         //IValueType filterIn1 = container.getFilterIn1();
         //if ( filterIn1 != null ) {
         //	filterIn1.loadTooltip(lines, appendOptionalInfo, value);
@@ -180,15 +176,15 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
         /*if ( writeItemStack != null ) {
         	NBTTagCompound tagCompound = writeItemStack.getTagCompound();
         	if ( tagCompound != null ) {
-        		
+
         		List<String> tagKeys = tagCompound.getKeySet().stream().collect(Collectors.toList());
         		//"partId"
                 for(int i = 0; i < container.getPageSize(); i++) {
                     if ( i >= tagKeys.size() )
                     	break;
-                	
+
             		GlStateManager.disableAlpha();
-                    Triple<Float, Float, Float> rgb = Triple.of(1f, 1f, 1f); 
+                    Triple<Float, Float, Float> rgb = Triple.of(1f, 1f, 1f);
                     		//Helpers.intToRGB(element.getColor());
                     boolean hover = isPointInRegion(getElementPosition(container, i, false), new Point(mouseX, mouseY));
                     boolean hover = false;
@@ -219,7 +215,7 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
             	}
         	}
         }*/
-        /*INetwork network = 
+        /*INetwork network =
         		NetworkWorldStorage.getInstance(IntegratedDynamics._instance).getNetworks().stream().findFirst().orElse(null);
 
             if (network != null) {
@@ -229,9 +225,9 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
                 	if (i >= elements.size())
                 		break;
                 	INetworkElement element = elements.get(i);
-                	
+
             		GlStateManager.disableAlpha();
-                    Triple<Float, Float, Float> rgb = Triple.of(1f, 1f, 1f); 
+                    Triple<Float, Float, Float> rgb = Triple.of(1f, 1f, 1f);
                     		//Helpers.intToRGB(element.getColor());
                     boolean hover = isPointInRegion(getElementPosition(container, i, false), new Point(mouseX, mouseY));
                     boolean hover = false;
@@ -261,7 +257,7 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
                             53, Helpers.RGBToInt(40, 40, 40));
             	}
             }*/
-        
+
 
     }
 
@@ -433,7 +429,7 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
     }
 
     protected void label(String label) {
-    	//TODO TCD NOW Not implemented 
+    	//TODO TCD NOW Not implemented
         //IntegratedDynamics._instance.getPacketHandler().sendToServer(new LogicProgrammerLabelPacket(label));
     }
 
