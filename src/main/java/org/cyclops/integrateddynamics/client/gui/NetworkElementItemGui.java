@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 
 import org.cyclops.cyclopscore.datastructure.DimPos;
 import org.cyclops.cyclopscore.helper.Helpers;
-import org.cyclops.cyclopscore.helper.L10NHelpers;
 import org.cyclops.cyclopscore.inventory.SimpleInventory;
 import org.cyclops.integrateddynamics.api.network.INetworkElement;
 import org.cyclops.integrateddynamics.api.part.IPartState;
@@ -71,8 +70,12 @@ public class NetworkElementItemGui extends NetworkElementGui {
 
 	@Override
 	public String getSymbol() {
-		return getItemStack().map(itemStack->L10NHelpers.localize(itemStack.getUnlocalizedName()))
-			.orElse("<no item>");
+		return getItemStack().map(itemStack->itemStack.getDisplayName()
+				/*{
+			String unlocalizedName = itemStack.getItem().getUnlocalizedName(itemStack);
+			//itemStack.getUnlocalizedName()
+			return L10NHelpers.localize(unlocalizedName);
+		}*/).orElse("<no item>");
 	}
 
 	Optional<ItemStack> getItemStack() {
