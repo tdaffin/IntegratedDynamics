@@ -116,6 +116,7 @@ item.items.integrateddynamics.menril_berries.name=Menril Berries
 item.items.integrateddynamics.menril_berries.info=Tasty and illuminating
 item.items.integrateddynamics.portable_logic_programmer.name=Portable Logic Programmer
 item.items.integrateddynamics.network_viewer.name=Network Viewer
+item.items.integrateddynamics.network_viewer.info=Right click a part of the network to view all of it's parts.
 item.items.integrateddynamics.on_the_dynamics_of_integration.name=On the Dynamics of Integration
 item.items.integrateddynamics.on_the_dynamics_of_integration.info=A complete mod reference guide with tutorials
 item.items.integrateddynamics.crystalized_chorus_chunk.name=Crystalized Chorus Chunk
