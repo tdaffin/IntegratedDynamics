@@ -37,12 +37,15 @@ public class NetworkElementItemGui extends NetworkElementGui {
 		getItemStack().ifPresent(itemStack->{
 			lines.addAll(itemStack.getTooltip(null, ITooltipFlag.TooltipFlags.NORMAL));
 		});
+		if ( hasError() )
+		    super.loadTooltip(lines);
 	}
 
 	@Override
 	public int getColor() {
-		return getItemStack().map(itemStack->Helpers.RGBToInt(255, 255, 255))
-				.orElse(Helpers.RGBToInt(250, 10, 13));//, TextFormatting.RED.toString()););
+		return super.getColor();
+		//return getItemStack().map(itemStack->Helpers.RGBToInt(255, 255, 255))
+		//		.orElse(Helpers.RGBToInt(250, 10, 13));//, TextFormatting.RED.toString()););
 
 		/*return getItemStack().map(itemStack->L10NHelpers.localize(itemStack.getUnlocalizedName()))
 				.orElse(Helpers.RGBToInt(255, 255, 255));
