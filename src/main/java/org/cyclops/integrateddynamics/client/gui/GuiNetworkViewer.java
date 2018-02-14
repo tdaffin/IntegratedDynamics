@@ -287,6 +287,24 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
         }
     }
 
+    /**
+     * Draws an ItemStack.
+     *
+     * The z index is increased by 32 (and not decreased afterwards), and the item is then rendered at z=200.
+     */
+    void drawItemStack(ItemStack stack, int x, int y, String altText)
+    {
+        GlStateManager.translate(0.0F, 0.0F, 32.0F);
+        zLevel = 200.0F;
+        itemRender.zLevel = 200.0F;
+        net.minecraft.client.gui.FontRenderer font = stack.getItem().getFontRenderer(stack);
+        if (font == null) font = fontRenderer;
+        itemRender.renderItemAndEffectIntoGUI(stack, x, y);
+        itemRender.renderItemOverlayIntoGUI(font, stack, x, y /*- (this.draggedStack.isEmpty() ? 0 : 8)*/, altText);
+        zLevel = 0.0F;
+        itemRender.zLevel = 0.0F;
+    }
+
     protected void onActivateElement(NetworkElementGui element) {
         subGuiHolder.addSubGui(operatorInfoPattern = new SubGuiOperatorInfo(element));
         operatorInfoPattern.initGui(guiLeft, guiTop);

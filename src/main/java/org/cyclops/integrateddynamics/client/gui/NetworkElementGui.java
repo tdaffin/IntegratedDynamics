@@ -1,20 +1,27 @@
 package org.cyclops.integrateddynamics.client.gui;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.World;
 import org.cyclops.cyclopscore.datastructure.DimPos;
 import org.cyclops.cyclopscore.helper.Helpers;
 import org.cyclops.cyclopscore.helper.L10NHelpers.UnlocalizedString;
 import org.cyclops.integrateddynamics.api.client.gui.subgui.IGuiInputElement;
+import org.cyclops.integrateddynamics.api.evaluate.variable.IValueType;
 import org.cyclops.integrateddynamics.api.item.IVariableFacade;
 import org.cyclops.integrateddynamics.api.logicprogrammer.IConfigRenderPattern;
 import org.cyclops.integrateddynamics.api.network.INetworkElement;
 import org.cyclops.integrateddynamics.api.part.IPartState;
 import org.cyclops.integrateddynamics.api.part.IPartType;
 import org.cyclops.integrateddynamics.core.logicprogrammer.RenderPattern;
+import org.cyclops.integrateddynamics.core.logicprogrammer.ValueTypeItemStackLPElement;
 import org.cyclops.integrateddynamics.core.network.PartNetworkElement;
 import org.cyclops.integrateddynamics.core.network.TileNetworkElement;
 import org.cyclops.integrateddynamics.core.part.PartStateActiveVariableBase;
+import org.cyclops.integrateddynamics.inventory.container.ContainerLogicProgrammerBase;
 import org.cyclops.integrateddynamics.inventory.container.ContainerNetworkViewer;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,6 +29,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //public interface INetworkViewerElement<S extends ISubGuiBox, G extends Gui, C extends Container> extends IGuiInputElement<S, G, C> {
@@ -135,10 +143,75 @@ public abstract class NetworkElementGui implements IGuiInputElement<RenderPatter
 	public RenderPattern createSubGui(int baseX, int baseY, int maxWidth, int maxHeight, GuiNetworkViewer gui,
 			ContainerNetworkViewer container) {
 		// TODO Auto-generated method stub
-		return new RenderPattern(this, maxHeight, maxHeight, maxHeight, maxHeight, gui, container);
+		//return new RenderPattern(this, baseX, baseY, maxWidth, maxHeight, gui, container);
+		return new SubGuiRenderPattern(this, baseX, baseY, maxWidth, maxHeight, gui, container);
 		//return new ValueTypeLPElementRenderPattern(this, baseX, baseY, maxWidth, maxHeight, gui, container);
 		//return new GuiElementValueTypeStringRenderPattern<GuiElementValueTypeStringRenderPattern, GuiNetworkViewer, ContainerNetworkViewer>(this, baseX, baseY, maxWidth, maxHeight, gui, container);
 	}
+
+	//NetworkElementGui implements IGuiInputElement<RenderPattern, GuiNetworkViewer, ContainerNetworkViewer> {
+    @SideOnly(Side.CLIENT)
+    protected class SubGuiRenderPattern extends RenderPattern<NetworkElementGui, GuiNetworkViewer, ContainerNetworkViewer> {
+
+        public SubGuiRenderPattern(NetworkElementGui element, int baseX, int baseY, int maxWidth, int maxHeight,
+                                   GuiNetworkViewer gui, ContainerNetworkViewer container) {
+            super(element, baseX, baseY, maxWidth, maxHeight, gui, container);
+        }
+
+        @Override
+        public void drawGuiContainerForegroundLayer(int guiLeft, int guiTop, TextureManager textureManager, FontRenderer fontRenderer, int mouseX, int mouseY) {
+            super.drawGuiContainerForegroundLayer(guiLeft, guiTop, textureManager, fontRenderer, mouseX, mouseY);
+
+            List<String> lines = new ArrayList<String>();
+            loadTooltip(lines);
+
+            if (!lines.isEmpty())
+                gui.drawString(fontRenderer, lines.get(0), getX(), getY(), getColor());
+            //gui.drawHoveringText(lines, getX(), getY());
+            //gui.drawTooltip(lines, getX(), getY());
+            /*IValueType valueType = element.getValueType();
+
+            // Output type tooltip
+            if(!container.hasWriteItemInSlot()) {
+                if(gui.isPointInRegion(ContainerLogicProgrammerBase.OUTPUT_X, ContainerLogicProgrammerBase.OUTPUT_Y,
+                        GuiLogicProgrammerBase.BOX_HEIGHT, GuiLogicProgrammerBase.BOX_HEIGHT, mouseX, mouseY)) {
+                    gui.drawTooltip(getValueTypeTooltip(valueType), mouseX - guiLeft, mouseY - guiTop);
+                }
+            }*/
+
+            GlStateManager.pushMatrix();
+            GlStateManager.enableRescaleNormal();
+
+            RenderHelper.disableStandardItemLighting();
+            RenderHelper.enableGUIStandardItemLighting();
+
+
+            INetworkElement element = getElement().getElement();
+            //GuiNetworkViewer gui
+            if (element instanceof PartNetworkElement) {
+                PartNetworkElement partNetworkElement = (PartNetworkElement) element;
+                IPartType part = partNetworkElement.getPart();
+                IPartState partState = partNetworkElement.getPartState();
+                ItemStack itemStack = part.getItemStack(partState, false);
+                gui.drawItemStack(itemStack, getX(), getY(), null);//part.getName());
+            } else if ( element instanceof TileNetworkElement) {
+                TileNetworkElement tileNetworkElement = (TileNetworkElement)element;
+                DimPos position = tileNetworkElement.getPosition();
+                World world = position.getWorld();
+                if ( world != null ) {
+                    IBlockState blockState = world.getBlockState(position.getBlockPos());
+                    //lines.add(blockState.getBlock().getLocalizedName());
+                    gui.drawItemStack(new ItemStack(blockState.getBlock()), getX(), getY(), null);//part.getName());
+                }
+            }
+
+            GlStateManager.popMatrix();
+            GlStateManager.enableLighting();
+            GlStateManager.enableDepth();
+            RenderHelper.enableStandardItemLighting();
+        }
+
+    }
 
 	boolean hasError(){
 		INetworkElement element = getElement();
