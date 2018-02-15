@@ -96,35 +96,4 @@ public class NetworkElementItemGui extends NetworkElementGui {
 		return itemStacks.stream().findFirst();*/
 	}
 
-	public static Stream<ItemStack> getItemStacks(INetworkElement element){
-		if ( element instanceof PartNetworkElement ) {
-			PartNetworkElement partNetworkElement = (PartNetworkElement)element;
-			IPartType part = partNetworkElement.getPart();
-			IPartState partState = partNetworkElement.getPartState();
-			if ( partState instanceof PartStateActiveVariableBase ) {
-				PartStateActiveVariableBase state = (PartStateActiveVariableBase)partState;
-				SimpleInventory inventory = state.getInventory();
-				if (!inventory.isEmpty()) {
-					return Arrays.stream(inventory.getItemStacks());
-		            /*if (!state.hasVariable() || !state.isEnabled()) {
-		            	return Helpers.RGBToInt(250, 10, 13);//, TextFormatting.RED.toString());
-		            }*/
-				}
-			}
-		} else if ( element instanceof TileNetworkElement ) {
-			TileNetworkElement tileNetworkElement = (TileNetworkElement)element;
-			DimPos position = tileNetworkElement.getPosition();
-			World world = position.getWorld();
-			if ( world != null ) {
-				TileEntity tileEntity = world.getTileEntity(position.getBlockPos());
-				IItemHandler itemHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-				return IntStream.range(0, itemHandler.getSlots())
-					.mapToObj(slot->itemHandler.getStackInSlot(slot))
-					.filter(st->!st.isEmpty());
-				//IBlockState blockState = world.getBlockState(position.getBlockPos());
-				//lines.add(blockState.getBlock().getLocalizedName());
-			}
-		}
-		return Stream.empty();
-	}
 }

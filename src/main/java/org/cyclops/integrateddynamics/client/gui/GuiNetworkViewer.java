@@ -308,7 +308,9 @@ public class GuiNetworkViewer extends ScrollingGuiContainer {
     protected void onActivateElement(NetworkElementGui element) {
         subGuiHolder.addSubGui(operatorInfoPattern = new SubGuiOperatorInfo(element));
         operatorInfoPattern.initGui(guiLeft, guiTop);
-        subGuiHolder.addSubGui(operatorConfigPattern = element.createSubGui(88, 18, 160, 87, this, (ContainerNetworkViewer) getContainer()));
+        //operatorConfigPattern = element.createSubGui(88, 18, 160, 87, this, (ContainerNetworkViewer) getContainer());
+        operatorConfigPattern = element.createSubGui(89, 19, 158, 22, this, getContainer());
+        subGuiHolder.addSubGui(operatorConfigPattern);
         operatorConfigPattern.initGui(guiLeft, guiTop);
     }
 

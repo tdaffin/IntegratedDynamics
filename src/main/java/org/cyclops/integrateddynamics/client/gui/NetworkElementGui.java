@@ -5,32 +5,37 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import org.apache.commons.lang3.tuple.Pair;
 import org.cyclops.cyclopscore.datastructure.DimPos;
 import org.cyclops.cyclopscore.helper.Helpers;
 import org.cyclops.cyclopscore.helper.L10NHelpers.UnlocalizedString;
+import org.cyclops.cyclopscore.helper.RenderHelpers;
+import org.cyclops.cyclopscore.inventory.SimpleInventory;
 import org.cyclops.integrateddynamics.api.client.gui.subgui.IGuiInputElement;
-import org.cyclops.integrateddynamics.api.evaluate.variable.IValueType;
 import org.cyclops.integrateddynamics.api.item.IVariableFacade;
 import org.cyclops.integrateddynamics.api.logicprogrammer.IConfigRenderPattern;
 import org.cyclops.integrateddynamics.api.network.INetworkElement;
 import org.cyclops.integrateddynamics.api.part.IPartState;
 import org.cyclops.integrateddynamics.api.part.IPartType;
 import org.cyclops.integrateddynamics.core.logicprogrammer.RenderPattern;
-import org.cyclops.integrateddynamics.core.logicprogrammer.ValueTypeItemStackLPElement;
 import org.cyclops.integrateddynamics.core.network.PartNetworkElement;
 import org.cyclops.integrateddynamics.core.network.TileNetworkElement;
 import org.cyclops.integrateddynamics.core.part.PartStateActiveVariableBase;
-import org.cyclops.integrateddynamics.inventory.container.ContainerLogicProgrammerBase;
 import org.cyclops.integrateddynamics.inventory.container.ContainerNetworkViewer;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 //public interface INetworkViewerElement<S extends ISubGuiBox, G extends Gui, C extends Container> extends IGuiInputElement<S, G, C> {
 public abstract class NetworkElementGui implements IGuiInputElement<RenderPattern, GuiNetworkViewer, ContainerNetworkViewer> {
@@ -119,7 +124,9 @@ public abstract class NetworkElementGui implements IGuiInputElement<RenderPatter
 
 	@Override
 	public IConfigRenderPattern getRenderPattern() {
-		return org.cyclops.integrateddynamics.api.logicprogrammer.IConfigRenderPattern.NONE;
+        return new IConfigRenderPattern.Base(158, 22, new Pair[0], null);
+        //return new IConfigRenderPattern.Base(100, 22, new Pair[0], null);
+		//return IConfigRenderPattern.NONE;
 	}
 
 	@Override
@@ -142,7 +149,6 @@ public abstract class NetworkElementGui implements IGuiInputElement<RenderPatter
 	@Override
 	public RenderPattern createSubGui(int baseX, int baseY, int maxWidth, int maxHeight, GuiNetworkViewer gui,
 			ContainerNetworkViewer container) {
-		// TODO Auto-generated method stub
 		//return new RenderPattern(this, baseX, baseY, maxWidth, maxHeight, gui, container);
 		return new SubGuiRenderPattern(this, baseX, baseY, maxWidth, maxHeight, gui, container);
 		//return new ValueTypeLPElementRenderPattern(this, baseX, baseY, maxWidth, maxHeight, gui, container);
@@ -159,14 +165,59 @@ public abstract class NetworkElementGui implements IGuiInputElement<RenderPatter
         }
 
         @Override
+        public void drawGuiContainerBackgroundLayer(int guiLeft, int guiTop, TextureManager textureManager, FontRenderer fontRenderer, float partialTicks, int mouseX, int mouseY) {
+            super.drawGuiContainerBackgroundLayer(guiLeft, guiTop, textureManager, fontRenderer, partialTicks, mouseX, mouseY);
+            IConfigRenderPattern configRenderPattern = element.getRenderPattern();
+
+            int baseX = getX() + guiLeft;
+            int baseY = getY() + guiTop;
+
+            for(Pair<Integer, Integer> slot : configRenderPattern.getSlotPositions()) {
+                drawSlot(baseX + slot.getLeft(), baseY + slot.getRight());
+            }
+
+            if(configRenderPattern.getSymbolPosition() != null) {
+                int width = fontRenderer.getStringWidth(element.getSymbol());
+                RenderHelpers.drawScaledCenteredString(fontRenderer, element.getSymbol(),
+                        baseX + configRenderPattern.getSymbolPosition().getLeft(),
+                        baseY + configRenderPattern.getSymbolPosition().getRight() + 8,
+                        width, 1, 0);
+            }
+            GlStateManager.color(1, 1, 1);
+        }
+
+        @Override
         public void drawGuiContainerForegroundLayer(int guiLeft, int guiTop, TextureManager textureManager, FontRenderer fontRenderer, int mouseX, int mouseY) {
             super.drawGuiContainerForegroundLayer(guiLeft, guiTop, textureManager, fontRenderer, mouseX, mouseY);
 
             List<String> lines = new ArrayList<String>();
             loadTooltip(lines);
 
-            if (!lines.isEmpty())
-                gui.drawString(fontRenderer, lines.get(0), getX(), getY(), getColor());
+            ItemStack itemStack = getElementAsItemStack();
+
+            int x = getX() + 2; // 10
+            int y = getY() + 2; // 25
+            if ( itemStack != null ){
+                drawItemStack(gui, itemStack, x, y);
+            }
+
+            x += 22;
+            y += 4;
+            if (!lines.isEmpty()) {
+                gui.drawString(fontRenderer, lines.get(0), x, y, getColor());
+                y += 22;
+                lines.remove(0);
+            }
+            x -= 20;
+
+            int col = Helpers.RGBToInt(10, 10, 10);
+            int lineHeight = fontRenderer.FONT_HEIGHT + 1;
+            for (String line : lines) {
+                int wrapWidth = getWidth() - 4;
+                fontRenderer.drawSplitString(line, x, y, wrapWidth, col);
+                int numLines = fontRenderer.listFormattedStringToWidth(line, wrapWidth).size();
+                y += lineHeight * numLines;
+            }
             //gui.drawHoveringText(lines, getX(), getY());
             //gui.drawTooltip(lines, getX(), getY());
             /*IValueType valueType = element.getValueType();
@@ -179,38 +230,45 @@ public abstract class NetworkElementGui implements IGuiInputElement<RenderPatter
                 }
             }*/
 
-            GlStateManager.pushMatrix();
-            GlStateManager.enableRescaleNormal();
-
-            RenderHelper.disableStandardItemLighting();
-            RenderHelper.enableGUIStandardItemLighting();
-
-
-            INetworkElement element = getElement().getElement();
-            //GuiNetworkViewer gui
-            if (element instanceof PartNetworkElement) {
-                PartNetworkElement partNetworkElement = (PartNetworkElement) element;
-                IPartType part = partNetworkElement.getPart();
-                IPartState partState = partNetworkElement.getPartState();
-                ItemStack itemStack = part.getItemStack(partState, false);
-                gui.drawItemStack(itemStack, getX(), getY(), null);//part.getName());
-            } else if ( element instanceof TileNetworkElement) {
-                TileNetworkElement tileNetworkElement = (TileNetworkElement)element;
-                DimPos position = tileNetworkElement.getPosition();
-                World world = position.getWorld();
-                if ( world != null ) {
-                    IBlockState blockState = world.getBlockState(position.getBlockPos());
-                    //lines.add(blockState.getBlock().getLocalizedName());
-                    gui.drawItemStack(new ItemStack(blockState.getBlock()), getX(), getY(), null);//part.getName());
-                }
-            }
-
-            GlStateManager.popMatrix();
-            GlStateManager.enableLighting();
-            GlStateManager.enableDepth();
-            RenderHelper.enableStandardItemLighting();
         }
 
+    }
+
+    private static void drawItemStack(GuiNetworkViewer gui, ItemStack stack, int x, int y){
+        GlStateManager.pushMatrix();
+        GlStateManager.enableRescaleNormal();
+        RenderHelper.disableStandardItemLighting();
+        RenderHelper.enableGUIStandardItemLighting();
+
+        gui.drawItemStack(stack, x, y, null);
+
+        GlStateManager.popMatrix();
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
+        RenderHelper.enableStandardItemLighting();
+    }
+
+    ItemStack getElementAsItemStack(){
+        if (element instanceof PartNetworkElement) {
+            PartNetworkElement partNetworkElement = (PartNetworkElement) element;
+            IPartType part = partNetworkElement.getPart();
+            IPartState partState = partNetworkElement.getPartState();
+            return part.getItemStack(partState, false);
+
+        } else if ( element instanceof TileNetworkElement) {
+            TileNetworkElement tileNetworkElement = (TileNetworkElement)element;
+            DimPos position = tileNetworkElement.getPosition();
+            World world = position.getWorld();
+            if ( world != null ) {
+                IBlockState blockState = world.getBlockState(position.getBlockPos());
+                return new ItemStack(blockState.getBlock());
+            }
+        }
+        return null;
+    }
+
+    public Stream<ItemStack> getItemStacks(){
+        return getItemStacks(element);
     }
 
 	boolean hasError(){
@@ -270,5 +328,37 @@ public abstract class NetworkElementGui implements IGuiInputElement<RenderPatter
 		}
 		lines.add(str);
 	}
+
+    public static Stream<ItemStack> getItemStacks(INetworkElement element){
+        if ( element instanceof PartNetworkElement ) {
+            PartNetworkElement partNetworkElement = (PartNetworkElement)element;
+            IPartType part = partNetworkElement.getPart();
+            IPartState partState = partNetworkElement.getPartState();
+            if ( partState instanceof PartStateActiveVariableBase ) {
+                PartStateActiveVariableBase state = (PartStateActiveVariableBase)partState;
+                SimpleInventory inventory = state.getInventory();
+                if (!inventory.isEmpty()) {
+                    return Arrays.stream(inventory.getItemStacks());
+		            /*if (!state.hasVariable() || !state.isEnabled()) {
+		            	return Helpers.RGBToInt(250, 10, 13);//, TextFormatting.RED.toString());
+		            }*/
+                }
+            }
+        } else if ( element instanceof TileNetworkElement ) {
+            TileNetworkElement tileNetworkElement = (TileNetworkElement)element;
+            DimPos position = tileNetworkElement.getPosition();
+            World world = position.getWorld();
+            if ( world != null ) {
+                TileEntity tileEntity = world.getTileEntity(position.getBlockPos());
+                IItemHandler itemHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+                return IntStream.range(0, itemHandler.getSlots())
+                        .mapToObj(itemHandler::getStackInSlot)
+                        .filter(st->!st.isEmpty());
+                //IBlockState blockState = world.getBlockState(position.getBlockPos());
+                //lines.add(blockState.getBlock().getLocalizedName());
+            }
+        }
+        return Stream.empty();
+    }
 }
 
