@@ -81,6 +81,11 @@ public class NetworkElementItemGui extends NetworkElementGui {
 		}*/).orElse("<no item>");
 	}
 
+    @Override
+	Optional<ItemStack> getItemStackForGUI() {
+		return getItemStack();
+	}
+
 	Optional<ItemStack> getItemStack() {
 		return Optional.of(itemStack);
 		/*List<ItemStack> itemStacks = Lists.newLinkedList();

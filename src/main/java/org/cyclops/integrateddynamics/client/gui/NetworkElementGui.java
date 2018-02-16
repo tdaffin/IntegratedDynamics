@@ -34,6 +34,7 @@ import org.cyclops.integrateddynamics.inventory.container.ContainerNetworkViewer
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -193,12 +194,12 @@ public abstract class NetworkElementGui implements IGuiInputElement<RenderPatter
             List<String> lines = new ArrayList<String>();
             loadTooltip(lines);
 
-            ItemStack itemStack = getElementAsItemStack();
+            Optional<ItemStack> itemStack = getItemStackForGUI();
 
             int x = getX() + 2; // 10
             int y = getY() + 2; // 25
-            if ( itemStack != null ){
-                drawItemStack(gui, itemStack, x, y);
+            if ( itemStack.isPresent() ){
+                drawItemStack(gui, itemStack.get(), x, y);
             }
 
             x += 22;
@@ -247,6 +248,10 @@ public abstract class NetworkElementGui implements IGuiInputElement<RenderPatter
         GlStateManager.enableDepth();
         RenderHelper.enableStandardItemLighting();
     }
+
+	Optional<ItemStack> getItemStackForGUI() {
+    	return Optional.of(getElementAsItemStack());
+	}
 
     ItemStack getElementAsItemStack(){
         if (element instanceof PartNetworkElement) {
