@@ -26,6 +26,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.stream.Stream;
+
 /**
  * A network viewer item
  */
@@ -149,11 +151,17 @@ public class ItemNetworkViewer extends ItemGui {
     	super.onPlayerStoppedUsing(stack, worldIn, entityLiving, timeLeft);
     }
 
+    private static Stream<INetwork> getNetworks(){
+        return NetworkWorldStorage.getInstance(IntegratedDynamics._instance).getNetworks().stream();
+    }
+
     public INetwork getCurrentNetwork() {
     	if ( currentNetwork == null ) {
-			currentNetwork = NetworkWorldStorage.getInstance(IntegratedDynamics._instance).getNetworks().stream()
-					.findFirst().orElse(null);
-    	}
+			//currentNetwork = getNetworks().findFirst().orElse(null);
+    	} else {
+            if ( !getNetworks().anyMatch(network->network==currentNetwork) )
+                currentNetwork = null;
+        }
     	return currentNetwork;
     }
 
