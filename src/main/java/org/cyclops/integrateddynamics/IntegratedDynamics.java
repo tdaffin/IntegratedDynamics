@@ -3,7 +3,9 @@ package org.cyclops.integrateddynamics;
 import com.google.common.collect.Maps;
 import net.minecraft.command.ICommand;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -11,6 +13,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Level;
 import org.cyclops.cyclopscore.client.gui.GuiHandler;
 import org.cyclops.cyclopscore.command.CommandMod;
@@ -26,6 +29,7 @@ import org.cyclops.cyclopscore.init.RecipeHandler;
 import org.cyclops.cyclopscore.item.BucketRegistry;
 import org.cyclops.cyclopscore.item.IBucketRegistry;
 import org.cyclops.cyclopscore.persist.world.GlobalCounters;
+import org.cyclops.cyclopscore.persist.world.WorldStorage;
 import org.cyclops.cyclopscore.proxy.ICommonProxy;
 import org.cyclops.cyclopscore.recipe.custom.SuperRecipeRegistry;
 import org.cyclops.cyclopscore.recipe.custom.api.ISuperRecipeRegistry;
@@ -249,6 +253,25 @@ public class IntegratedDynamics extends ModBaseVersionable {
     public void onServerStarted(FMLServerStartedEvent event) {
         PartTypeConnectorOmniDirectional.LOADED_GROUPS.onStartedEvent(event);
         super.onServerStarted(event);
+
+        // TODO Detect command line switches like nogui or a new 'test' switch
+        //dedicatedserver.setGuiEnabled();
+        //            net.minecraft.server.dedicated.DedicatedServer
+
+        // TODO with this here you can't run the server for any purpose but integration
+        // testing if the integration tests are available
+        if(TestHelpers.canRunIntegrationTests() && event.getSide() == Side.SERVER) {
+
+            // Run the integration tests
+            CommandTest commandTest = new CommandTest(this);
+            final String command = String.format("%s %s", commandTest.getFullCommand(), CommandTest.NAME);
+            MinecraftServer serverInstance = FMLCommonHandler.instance().getMinecraftServerInstance();
+            serverInstance.getCommandManager().executeCommand(serverInstance, command);
+
+            // Auto exit
+            serverInstance.getCommandManager().executeCommand(serverInstance, "stop");
+        }
+
     }
 
     @Mod.EventHandler
