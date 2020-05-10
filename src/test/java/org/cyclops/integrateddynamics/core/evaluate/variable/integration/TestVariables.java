@@ -2,6 +2,7 @@ package org.cyclops.integrateddynamics.core.evaluate.variable.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.jjtparadox.barometer.tester.BarometerTester;
 import net.minecraft.block.Blocks;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
@@ -21,8 +22,9 @@ import org.cyclops.commoncapabilities.api.ingredient.MixedIngredients;
 import org.cyclops.commoncapabilities.api.ingredient.PrototypedIngredient;
 import org.cyclops.integrateddynamics.core.evaluate.variable.ValueObjectTypeIngredients;
 import org.cyclops.integrateddynamics.core.evaluate.variable.ValueObjectTypeRecipe;
-import org.cyclops.integrateddynamics.core.test.IntegrationTest;
-import org.cyclops.integrateddynamics.core.test.TestHelpers;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,9 +34,10 @@ import java.util.Map;
  * Test the different variable types.
  * @author rubensworks
  */
+@RunWith(BarometerTester.class)
 public class TestVariables {
 
-    @IntegrationTest
+    @Test
     public void testIngredientsType() {
         DummyVariableIngredients inull = new DummyVariableIngredients(ValueObjectTypeIngredients.ValueIngredients.of(null));
         TestHelpers.assertEqual(inull.getValue().getRawValue().orElse(null), null, "null value is null");
@@ -58,7 +61,7 @@ public class TestVariables {
         TestHelpers.assertEqual(i0.getType().deserialize(tag), i0.getValue(), "Deserialization is correct");
     }
 
-    @IntegrationTest
+    @Test
     public void testRecipeType() {
         DummyVariableRecipe rnull = new DummyVariableRecipe(ValueObjectTypeRecipe.ValueRecipe.of(null));
         TestHelpers.assertEqual(rnull.getValue().getRawValue().orElse(null), null, "null value is null");

@@ -43,7 +43,6 @@ import org.cyclops.integrateddynamics.client.render.valuetype.ValueTypeWorldRend
 import org.cyclops.integrateddynamics.client.render.valuetype.ValueTypeWorldRenderers;
 import org.cyclops.integrateddynamics.command.CommandCrash;
 import org.cyclops.integrateddynamics.command.CommandNetworkDiagnostics;
-import org.cyclops.integrateddynamics.command.CommandTest;
 import org.cyclops.integrateddynamics.core.NoteBlockEventReceiver;
 import org.cyclops.integrateddynamics.core.TickHandler;
 import org.cyclops.integrateddynamics.core.client.model.VariableModelProviderRegistry;
@@ -139,7 +138,6 @@ public class IntegratedDynamics extends ModBaseVersionable<IntegratedDynamics> {
 
         root.then(CommandCrash.make());
         root.then(CommandNetworkDiagnostics.make());
-        root.then(CommandTest.make());
 
         return root;
     }

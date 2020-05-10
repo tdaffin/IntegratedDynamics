@@ -7,10 +7,14 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
+        maven {
+            url "https://dl.bintray.com/jjtparadox/MC"
+        }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+        classpath 'com.jjtparadox.barometer:Barometer:0.0.7'
     }
 }
 
@@ -25,6 +29,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.jjtparadox.barometer' // Must be after the Forge plugin
 apply plugin: 'jacoco'
 
 import net.minecraftforge.gradle.common.task.SignJar
@@ -86,6 +91,9 @@ repositories {
         name "Cyclops Repo"
         url "https://oss.jfrog.org/artifactory/simple/libs-release/"
     }
+    maven {
+        url "https://dl.bintray.com/jjtparadox/MC"
+}
 }
 
 dependencies {
@@ -127,6 +135,13 @@ dependencies {
     compileOnly "org.projectlombok:lombok:1.16.4"
 	
 	testCompile "junit:junit:4.12"
+    testCompile "com.jjtparadox.barometer:Barometer:0.0.7"
+    testCompile makeStart.outputs.files
+}
+
+barometer {
+    // NOTE: By using the following statement in your code you are indicating your agreement to the Minecraft EULA (https://account.mojang.com/documents/minecraft_eula).
+    acceptEula()
 }
 
 shadowJar {

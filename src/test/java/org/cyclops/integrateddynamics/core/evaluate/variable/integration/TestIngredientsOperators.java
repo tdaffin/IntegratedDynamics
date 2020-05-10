@@ -2,6 +2,7 @@ package org.cyclops.integrateddynamics.core.evaluate.variable.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.jjtparadox.barometer.tester.BarometerTester;
 import net.minecraft.block.Blocks;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
@@ -23,9 +24,9 @@ import org.cyclops.integrateddynamics.core.evaluate.variable.ValueTypeInteger;
 import org.cyclops.integrateddynamics.core.evaluate.variable.ValueTypeList;
 import org.cyclops.integrateddynamics.core.evaluate.variable.ValueTypeOperator;
 import org.cyclops.integrateddynamics.core.evaluate.variable.ValueTypes;
-import org.cyclops.integrateddynamics.core.test.IntegrationBefore;
-import org.cyclops.integrateddynamics.core.test.IntegrationTest;
-import org.cyclops.integrateddynamics.core.test.TestHelpers;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.function.Predicate;
  * Test the different ingredients operators.
  * @author rubensworks
  */
+@RunWith(BarometerTester.class)
 public class TestIngredientsOperators {
 
     private static final DummyValueType DUMMY_TYPE = DummyValueType.TYPE;
@@ -69,7 +71,7 @@ public class TestIngredientsOperators {
     private Predicate<ValueTypeInteger.ValueInteger> pEnergyRaw;
     private DummyVariable<ValueTypeOperator.ValueOperator> pEnergy;
 
-    @IntegrationBefore
+    @Before
     public void before() {
         i0 = new DummyVariable<>(ValueTypes.INTEGER, ValueTypeInteger.ValueInteger.of(0));
         i1 = new DummyVariable<>(ValueTypes.INTEGER, ValueTypeInteger.ValueInteger.of(1));
@@ -125,7 +127,7 @@ public class TestIngredientsOperators {
      * ----------------------------------- ITEMS -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testItems() throws EvaluationException {
         IValue res1 = Operators.INGREDIENTS_ITEMS.evaluate(new IVariable[]{iMix});
         Asserts.check(res1 instanceof ValueTypeList.ValueList, "result is a list");
@@ -136,17 +138,17 @@ public class TestIngredientsOperators {
                 .getRawValue().get(1).getRawValue().getItem(), Item.getItemFromBlock(Blocks.STONE), "items(mix, 0) = boat");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testItemsSizeLarge() throws EvaluationException {
         Operators.INGREDIENTS_ITEMS.evaluate(new IVariable[]{iMix, i0});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testItemsSizeSmall() throws EvaluationException {
         Operators.INGREDIENTS_ITEMS.evaluate(new IVariable[]{});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testItemsSize() throws EvaluationException {
         Operators.INGREDIENTS_ITEMS.evaluate(new IVariable[]{DUMMY_VARIABLE});
     }
@@ -155,7 +157,7 @@ public class TestIngredientsOperators {
      * ----------------------------------- FLUIDS -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testFluids() throws EvaluationException {
         IValue res1 = Operators.INGREDIENTS_FLUIDS.evaluate(new IVariable[]{iFluids});
         Asserts.check(res1 instanceof ValueTypeList.ValueList, "result is a list");
@@ -167,17 +169,17 @@ public class TestIngredientsOperators {
                 )), "fluids(fluids) = lava, water");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testFluidsSizeLarge() throws EvaluationException {
         Operators.INGREDIENTS_FLUIDS.evaluate(new IVariable[]{iMix, i0});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testFluidsSizeSmall() throws EvaluationException {
         Operators.INGREDIENTS_FLUIDS.evaluate(new IVariable[]{});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testFluidsSize() throws EvaluationException {
         Operators.INGREDIENTS_FLUIDS.evaluate(new IVariable[]{DUMMY_VARIABLE});
     }
@@ -186,7 +188,7 @@ public class TestIngredientsOperators {
      * ----------------------------------- ENERGIES -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testEnergies() throws EvaluationException {
         IValue res1 = Operators.INGREDIENTS_ENERGIES.evaluate(new IVariable[]{iEnergies});
         Asserts.check(res1 instanceof ValueTypeList.ValueList, "result is a list");
@@ -199,17 +201,17 @@ public class TestIngredientsOperators {
                 .getRawValue().get(2).getRawValue(), 0, "energies(energies, 0) = 0");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testEnergiesSizeLarge() throws EvaluationException {
         Operators.INGREDIENTS_ENERGIES.evaluate(new IVariable[]{iMix, i0});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testEnergiesSizeSmall() throws EvaluationException {
         Operators.INGREDIENTS_ENERGIES.evaluate(new IVariable[]{});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testEnergiesSize() throws EvaluationException {
         Operators.INGREDIENTS_ENERGIES.evaluate(new IVariable[]{DUMMY_VARIABLE});
     }
@@ -218,7 +220,7 @@ public class TestIngredientsOperators {
      * ----------------------------------- WITH_ITEM -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testWithItem() throws EvaluationException {
         IValue res1 = Operators.INGREDIENTS_WITH_ITEM.evaluate(new IVariable[]{iMix, i0, iItem});
         Asserts.check(res1 instanceof ValueObjectTypeIngredients.ValueIngredients, "result is an ingredient");
@@ -256,17 +258,17 @@ public class TestIngredientsOperators {
         TestHelpers.assertEqual(outputIngredients2.getInstances(IngredientComponent.ENERGY), inputIngredients.getInstances(IngredientComponent.ENERGY), "Energy remains the same");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test
     public void testWithItemSizeLarge() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ITEM.evaluate(new IVariable[]{iMix, i0, iItem});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithItemSizeSmall() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ITEM.evaluate(new IVariable[]{iMix, i0});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithItemSize() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ITEM.evaluate(new IVariable[]{DUMMY_VARIABLE, DUMMY_VARIABLE, DUMMY_VARIABLE});
     }
@@ -275,7 +277,7 @@ public class TestIngredientsOperators {
      * ----------------------------------- WITH_FLUID -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testWithFluid() throws EvaluationException {
         IValue res1 = Operators.INGREDIENTS_WITH_FLUID.evaluate(new IVariable[]{iMix, i0, iFluid});
         Asserts.check(res1 instanceof ValueObjectTypeIngredients.ValueIngredients, "result is an ingredient");
@@ -308,17 +310,17 @@ public class TestIngredientsOperators {
         TestHelpers.assertEqual(outputIngredients2.getInstances(IngredientComponent.ENERGY), inputIngredients.getInstances(IngredientComponent.ENERGY), "Energy remains the same");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test
     public void testWithFluidSizeLarge() throws EvaluationException {
         Operators.INGREDIENTS_WITH_FLUID.evaluate(new IVariable[]{iMix, i0, iFluid});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithFluidSizeSmall() throws EvaluationException {
         Operators.INGREDIENTS_WITH_FLUID.evaluate(new IVariable[]{iMix, i0});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithFluidSize() throws EvaluationException {
         Operators.INGREDIENTS_WITH_FLUID.evaluate(new IVariable[]{DUMMY_VARIABLE, DUMMY_VARIABLE, DUMMY_VARIABLE});
     }
@@ -327,7 +329,7 @@ public class TestIngredientsOperators {
      * ----------------------------------- WITH_ENERGY -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testWithEnergy() throws EvaluationException {
         IValue res1 = Operators.INGREDIENTS_WITH_ENERGY.evaluate(new IVariable[]{iMix, i0, iEnergy});
         Asserts.check(res1 instanceof ValueObjectTypeIngredients.ValueIngredients, "result is an ingredient");
@@ -356,17 +358,17 @@ public class TestIngredientsOperators {
         TestHelpers.assertEqual(outputIngredients2.getInstances(IngredientComponent.FLUIDSTACK), inputIngredients.getInstances(IngredientComponent.FLUIDSTACK), "Fluids remains the same");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test
     public void testWithEnergySizeLarge() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ENERGY.evaluate(new IVariable[]{iMix, i0, iEnergy});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithEnergySizeSmall() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ENERGY.evaluate(new IVariable[]{iMix, i0});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithEnergySize() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ENERGY.evaluate(new IVariable[]{DUMMY_VARIABLE, DUMMY_VARIABLE, DUMMY_VARIABLE});
     }
@@ -375,7 +377,7 @@ public class TestIngredientsOperators {
      * ----------------------------------- WITH_ITEMS -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testWithItems() throws EvaluationException {
         IValue res1 = Operators.INGREDIENTS_WITH_ITEMS.evaluate(new IVariable[]{iMix, lItems});
         Asserts.check(res1 instanceof ValueObjectTypeIngredients.ValueIngredients, "result is an ingredient");
@@ -395,17 +397,17 @@ public class TestIngredientsOperators {
         TestHelpers.assertEqual(outputIngredients1.getInstances(IngredientComponent.ENERGY), inputIngredients.getInstances(IngredientComponent.ENERGY), "Energy remains the same");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test
     public void testWithItemsSizeLarge() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ITEMS.evaluate(new IVariable[]{iMix, lItems});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithItemsSizeSmall() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ITEMS.evaluate(new IVariable[]{iMix});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithItemsSize() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ITEMS.evaluate(new IVariable[]{DUMMY_VARIABLE, DUMMY_VARIABLE});
     }
@@ -414,7 +416,7 @@ public class TestIngredientsOperators {
      * ----------------------------------- WITH_FLUIDS -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testWithFluids() throws EvaluationException {
         IValue res1 = Operators.INGREDIENTS_WITH_FLUIDS.evaluate(new IVariable[]{iMix, lFluids});
         Asserts.check(res1 instanceof ValueObjectTypeIngredients.ValueIngredients, "result is an ingredient");
@@ -430,17 +432,17 @@ public class TestIngredientsOperators {
         TestHelpers.assertEqual(outputIngredients1.getInstances(IngredientComponent.ENERGY), inputIngredients.getInstances(IngredientComponent.ENERGY), "Energy remains the same");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test
     public void testWithFluidsSizeLarge() throws EvaluationException {
         Operators.INGREDIENTS_WITH_FLUIDS.evaluate(new IVariable[]{iMix, lFluids});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithFluidsSizeSmall() throws EvaluationException {
         Operators.INGREDIENTS_WITH_FLUIDS.evaluate(new IVariable[]{iMix});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithFluidsSize() throws EvaluationException {
         Operators.INGREDIENTS_WITH_FLUIDS.evaluate(new IVariable[]{DUMMY_VARIABLE, DUMMY_VARIABLE});
     }
@@ -449,7 +451,7 @@ public class TestIngredientsOperators {
      * ----------------------------------- WITH_ENERGIES -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testWithEnergies() throws EvaluationException {
         IValue res1 = Operators.INGREDIENTS_WITH_ENERGIES.evaluate(new IVariable[]{iMix, lEnergies});
         Asserts.check(res1 instanceof ValueObjectTypeIngredients.ValueIngredients, "result is an ingredient");
@@ -467,17 +469,17 @@ public class TestIngredientsOperators {
         TestHelpers.assertEqual(outputIngredients1.getInstances(IngredientComponent.FLUIDSTACK), inputIngredients.getInstances(IngredientComponent.FLUIDSTACK), "Fluid remains the same");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test
     public void testWithEnergiesSizeLarge() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ENERGIES.evaluate(new IVariable[]{iMix, lEnergies});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithEnergiesSizeSmall() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ENERGIES.evaluate(new IVariable[]{iMix});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithEnergiesSize() throws EvaluationException {
         Operators.INGREDIENTS_WITH_ENERGIES.evaluate(new IVariable[]{DUMMY_VARIABLE, DUMMY_VARIABLE});
     }

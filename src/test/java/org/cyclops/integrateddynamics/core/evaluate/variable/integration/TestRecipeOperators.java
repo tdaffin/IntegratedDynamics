@@ -2,6 +2,7 @@ package org.cyclops.integrateddynamics.core.evaluate.variable.integration;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.jjtparadox.barometer.tester.BarometerTester;
 import net.minecraft.block.Blocks;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
@@ -22,9 +23,9 @@ import org.cyclops.integrateddynamics.api.evaluate.variable.IVariable;
 import org.cyclops.integrateddynamics.core.evaluate.operator.Operators;
 import org.cyclops.integrateddynamics.core.evaluate.variable.ValueObjectTypeIngredients;
 import org.cyclops.integrateddynamics.core.evaluate.variable.ValueObjectTypeRecipe;
-import org.cyclops.integrateddynamics.core.test.IntegrationBefore;
-import org.cyclops.integrateddynamics.core.test.IntegrationTest;
-import org.cyclops.integrateddynamics.core.test.TestHelpers;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Map;
  * Test the different ingredients operators.
  * @author rubensworks
  */
+@RunWith(BarometerTester.class)
 public class TestRecipeOperators {
 
     private static final DummyValueType DUMMY_TYPE = DummyValueType.TYPE;
@@ -45,7 +47,7 @@ public class TestRecipeOperators {
     private DummyVariableIngredients iMainOut;
     private DummyVariableIngredients iItems;
 
-    @IntegrationBefore
+    @Before
     public void before() {
         List<List<IPrototypedIngredient<ItemStack, Integer>>> ingredientsIn = Lists.newArrayList();
         ingredientsIn.add(Collections.singletonList(new PrototypedIngredient<>(IngredientComponent.ITEMSTACK, ItemStack.EMPTY, ItemMatch.EXACT)));
@@ -75,24 +77,24 @@ public class TestRecipeOperators {
      * ----------------------------------- INPUT -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testInput() throws EvaluationException {
         IValue res1 = Operators.RECIPE_INPUT.evaluate(new IVariable[]{rMain});
         Asserts.check(res1 instanceof ValueObjectTypeIngredients.ValueIngredients, "result is an ingredients");
         TestHelpers.assertEqual(res1, ValueObjectTypeIngredients.ValueIngredients.of(MixedIngredients.fromRecipeInput(rMain.getValue().getRawValue().get())), "input is correct");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testInputSizeLarge() throws EvaluationException {
         Operators.RECIPE_INPUT.evaluate(new IVariable[]{rMain, rMain});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testInputSizeSmall() throws EvaluationException {
         Operators.RECIPE_INPUT.evaluate(new IVariable[]{});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testInputSize() throws EvaluationException {
         Operators.RECIPE_INPUT.evaluate(new IVariable[]{DUMMY_VARIABLE});
     }
@@ -101,24 +103,24 @@ public class TestRecipeOperators {
      * ----------------------------------- OUTPUT -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testOutput() throws EvaluationException {
         IValue res1 = Operators.RECIPE_OUTPUT.evaluate(new IVariable[]{rMain});
         Asserts.check(res1 instanceof ValueObjectTypeIngredients.ValueIngredients, "result is an ingredients");
         TestHelpers.assertEqual(res1, iMainOut.getValue(), "output is correct");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testOutputSizeLarge() throws EvaluationException {
         Operators.RECIPE_OUTPUT.evaluate(new IVariable[]{rMain, rMain});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testOutputSizeSmall() throws EvaluationException {
         Operators.RECIPE_OUTPUT.evaluate(new IVariable[]{});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testOutputSize() throws EvaluationException {
         Operators.RECIPE_OUTPUT.evaluate(new IVariable[]{DUMMY_VARIABLE});
     }
@@ -127,7 +129,7 @@ public class TestRecipeOperators {
      * ----------------------------------- WITH_INPUT -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testWithInput() throws EvaluationException {
         IValue res1 = Operators.RECIPE_WITH_INPUT.evaluate(new IVariable[]{rMain, iItems});
         Asserts.check(res1 instanceof ValueObjectTypeRecipe.ValueRecipe, "result is a recipe");
@@ -143,17 +145,17 @@ public class TestRecipeOperators {
         TestHelpers.assertEqual(res1, ValueObjectTypeRecipe.ValueRecipe.of(recipe), "input is correct");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithInputSizeLarge() throws EvaluationException {
         Operators.RECIPE_WITH_INPUT.evaluate(new IVariable[]{rMain, iItems, rMain});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithInputSizeSmall() throws EvaluationException {
         Operators.RECIPE_WITH_INPUT.evaluate(new IVariable[]{rMain});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithInputSize() throws EvaluationException {
         Operators.RECIPE_WITH_INPUT.evaluate(new IVariable[]{DUMMY_VARIABLE, DUMMY_VARIABLE});
     }
@@ -162,7 +164,7 @@ public class TestRecipeOperators {
      * ----------------------------------- WITH_OUTPUT -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testWithOutput() throws EvaluationException {
         IValue res1 = Operators.RECIPE_WITH_OUTPUT.evaluate(new IVariable[]{rMain, iItems});
         Asserts.check(res1 instanceof ValueObjectTypeRecipe.ValueRecipe, "result is a recipe");
@@ -179,17 +181,17 @@ public class TestRecipeOperators {
         TestHelpers.assertEqual(res1, ValueObjectTypeRecipe.ValueRecipe.of(recipe), "output is correct");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithOutputSizeLarge() throws EvaluationException {
         Operators.RECIPE_WITH_OUTPUT.evaluate(new IVariable[]{rMain, iItems, rMain});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithOutputSizeSmall() throws EvaluationException {
         Operators.RECIPE_WITH_OUTPUT.evaluate(new IVariable[]{rMain});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithOutputSize() throws EvaluationException {
         Operators.RECIPE_WITH_OUTPUT.evaluate(new IVariable[]{DUMMY_VARIABLE, DUMMY_VARIABLE});
     }
@@ -198,7 +200,7 @@ public class TestRecipeOperators {
      * ----------------------------------- WITH_INPUT_OUTPUT -----------------------------------
      */
 
-    @IntegrationTest
+    @Test
     public void testWithInputOutput() throws EvaluationException {
         IValue res1 = Operators.RECIPE_WITH_INPUT_OUTPUT.evaluate(new IVariable[]{iItems, iMainOut});
         Asserts.check(res1 instanceof ValueObjectTypeRecipe.ValueRecipe, "result is a recipe");
@@ -214,17 +216,17 @@ public class TestRecipeOperators {
         TestHelpers.assertEqual(res1, ValueObjectTypeRecipe.ValueRecipe.of(recipe), "input is correct");
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithInputOutputSizeLarge() throws EvaluationException {
         Operators.RECIPE_WITH_INPUT_OUTPUT.evaluate(new IVariable[]{iItems, iMainOut, rMain});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithInputOutputSizeSmall() throws EvaluationException {
         Operators.RECIPE_WITH_INPUT_OUTPUT.evaluate(new IVariable[]{iItems});
     }
 
-    @IntegrationTest(expected = EvaluationException.class)
+    @Test(expected = EvaluationException.class)
     public void testWithInputOutputSize() throws EvaluationException {
         Operators.RECIPE_WITH_INPUT_OUTPUT.evaluate(new IVariable[]{DUMMY_VARIABLE, DUMMY_VARIABLE});
     }
