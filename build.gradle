@@ -29,7 +29,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'com.jjtparadox.barometer' // Must be after the Forge plugin
+//apply plugin: 'com.jjtparadox.barometer' // Must be after the Forge plugin
 apply plugin: 'jacoco'
 
 import net.minecraftforge.gradle.common.task.SignJar
@@ -93,7 +93,7 @@ repositories {
     }
     maven {
         url "https://dl.bintray.com/jjtparadox/MC"
-}
+    }
 }
 
 dependencies {
@@ -136,13 +136,13 @@ dependencies {
 	
 	testCompile "junit:junit:4.12"
     testCompile "com.jjtparadox.barometer:Barometer:0.0.7"
-    testCompile makeStart.outputs.files
+    //testCompile makeStart.outputs.files
 }
 
-barometer {
+/*barometer {
     // NOTE: By using the following statement in your code you are indicating your agreement to the Minecraft EULA (https://account.mojang.com/documents/minecraft_eula).
     acceptEula()
-}
+}*/
 
 shadowJar {
     dependencies {
